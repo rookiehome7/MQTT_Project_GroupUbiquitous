@@ -1,13 +1,11 @@
-from socket import * 
 from threading import Thread
-
+from socket import * 
 import sys
-import os
 import time
+import os
 
-
-MAX_BUF = 2048  # Size of buffer to store received bytes
-SERV_PORT = 50000 # Server port 
+MAX_BUF = 2048
+SERV_PORT = 50000
 
 def handle_client(s):
   while True:
@@ -16,10 +14,8 @@ def handle_client(s):
   return
 
 def main():
-
 	#addr = ('127.0.0.1', SERV_PORT)     # Server socket address 
 	s = socket(AF_INET, SOCK_DGRAM)  # Create UDP socket
-
 	print('---------------------------------------------------------')
 	print('|\t\t\tMQTT Client\t\t\t|')
 	print('|\t\t     Group Ubiquitous\t\t\t|')
@@ -27,30 +23,33 @@ def main():
 	print('|  Subscriber: subscribe broker_ipaddress topicname\t|')
 	print('|  Publisher: publish broker_ipaddress topicname data\t|')
 	print('---------------------------------------------------------')
-
-	# userInput = input()
-	# split_userInput = userInput.split()
-	# if split_userInput[0] == "subscribe":
-	#     print("subscribe mode")
-	# elif split_userInput[0] == "publish":
-	#     print("publish mode")
-	# else:
-	#     print("Try again")
-	txtout = "home"
 	while(1):
 		print('> ',end='') # Print the prompt
 		sys.stdout.flush()
 		txtout =  sys.stdin.readline().strip() # Take input from user keyboard
 		split_txtout = txtout.split()
 
-		if (split_txtout[0] == "subscribe" and len(split_txtout) == 3): # Subscribe Mode
+		# Pubish > constraints  { publih , topic , data }			
+		if (split_txtout[0] == "publish" and len(split_txtout) == 4): 
+			broker_ipaddress,topicname,data = split_txtout[1],split_txtout[2],split_txtout[3]  
+			addr = (broker_ipaddress, SERV_PORT) # IP with port 
+			print('Publish to IP:' + broker_ipaddress + ' Topic:' + topicname + ' Data:' + data)
+			
+			# Make string and send to broker 
+			data_Send = 'publish:' + topicname + ':' + data
+			s.sendto(data_Send.encode('utf-8'), addr)	
+
+		# Subscribe > constraints  { subscribe , topic }
+		elif (split_txtout[0] == "subscribe" and len(split_txtout) == 3): # Subscribe Mode
 			broker_ipaddress,topicname = split_txtout[1],split_txtout[2] 
 			addr = (broker_ipaddress, SERV_PORT) # IP with port 
-			
 			print('Subscribe to IP:' + broker_ipaddress + '. Topic:' + topicname)
+			
+			# Make string and send to broker  
 			data_Send = 'subscribe:' + topicname
 			s.sendto(data_Send.encode('utf-8'), addr) # Convert to byte type and send
 
+			# Subscribe TOPIC from Broker
 			Thread(target=handle_client, args=(s,)).start()
 			while True:
 				try:
@@ -61,21 +60,7 @@ def main():
 					print ('Stop subscribe topic:' + topicname)
 					Thread(target=handle_client, args=(s,))._stop()
 					break
-				# except :
-				# 	print("Cannot start thread..")
-				# 	import traceback
-				# 	trackback.print_exc()
-		elif (split_txtout[0] == "publish" and len(split_txtout) == 4): # Publish Mode 
-			broker_ipaddress,topicname,data = split_txtout[1],split_txtout[2],split_txtout[3]  
-			
-			addr = (broker_ipaddress, SERV_PORT) # IP with port 
-
-			print('Publish to IP:' + broker_ipaddress + ' Topic:' + topicname + ' Data:' + data)
-			data_Send = 'publish:' + topicname + ':' + data
-			s.sendto(data_Send.encode('utf-8'), addr)	# Convert to byte type and send
-			
-			# modifiedMsg, srvAddr = s.recvfrom(2048)
-			# print(modifiedMsg.decode('utf-8'))
+		# Error 
 		else:
 			print("Wrong syntax. Please try agian")
 	s.close()
