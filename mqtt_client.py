@@ -3,16 +3,13 @@ from socket import *
 import sys
 import time
 import os
-
 MAX_BUF = 2048
 SERV_PORT = 50000
-
 def handle_client(s):
   while True:
      txtin = s.recv(2048)
      print ('Message> %s' %(txtin).decode('utf-8')) 
   return
-
 def main():
 	#addr = ('127.0.0.1', SERV_PORT)     # Server socket address 
 	s = socket(AF_INET, SOCK_DGRAM)  # Create UDP socket
@@ -23,11 +20,13 @@ def main():
 	print('|  Subscriber: subscribe broker_ipaddress topicname\t|')
 	print('|  Publisher: publish broker_ipaddress topicname data\t|')
 	print('---------------------------------------------------------')
-	while(1):
+	isExit = 0
+	while(isExit == 0):
 		print('> ',end='') # Print the prompt
 		sys.stdout.flush()
 		txtout =  sys.stdin.readline().strip() # Take input from user keyboard
-		split_txtout = txtout.split()
+		txtout = txtout.replace("'","")
+		split_txtout = txtout.split(maxsplit=3)
 
 		# Pubish > constraints  { publih , topic , data }			
 		if (split_txtout[0] == "publish" and len(split_txtout) == 4): 
@@ -60,6 +59,9 @@ def main():
 					print ('Stop subscribe topic:' + topicname)
 					Thread(target=handle_client, args=(s,))._stop()
 					break
+		elif (split_txtout[0] == "exit" and len(split_txtout) == 1):
+			isExit = 1
+
 		# Error 
 		else:
 			print("Wrong syntax. Please try agian")
