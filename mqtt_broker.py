@@ -10,12 +10,12 @@ subscribe_lst = [] # Subscribe Array
 print ('Please enter Broker IP address:')
 sys.stdout.flush()
 txt =  sys.stdin.readline().strip() # Take input from user keyboard
-txtsplit = txt.split()	
+txtsplit = txt.split()
 brokerIP = txtsplit[0]
 addr = (brokerIP, SERV_PORT) 		# Socket address
 s = socket(AF_INET, SOCK_DGRAM) 	# Create UDP socket
 s.bind(addr)                   		# Bind socket to address
-print ('Broker IP' + brokerIP + '. Start at port:' + str(SERV_PORT))
+print ('Broker IP:' + brokerIP + '. Start at port:' + str(SERV_PORT))
 
 while(1):
 	print ('>', end = '')
@@ -39,13 +39,13 @@ while(1):
 	# Subscribe > constraints  { subscribe , topic }
 	elif ( split_txtin[0] == "subscribe" and len(split_txtin) == 2): 
 		subscribe_lst.append(ip +':'+ port + ',' + split_txtin[1])  # Make array list of subscribe
-		print('Subscribe ' + ip +':'+ port + ' to list with topic:' + split_txtin[1])
+		print('Subscribe >' + ip +':'+ port + ' to list with topic:' + split_txtin[1])
 		print ('\tSubscribe list: ' + str(subscribe_lst))
 	# Un-Subscribe > constraints  { unsubscribe , topic }
 	elif (split_txtin[0] == "unsubscribe" and len(split_txtin) == 2):
 		string = ip + ':' + port + ',' + split_txtin[1]
 		subscribe_lst.remove(string) # Remove subscribe client in list 
-		print ('Unsubscribe' + ip + ':' + port + ' from list with topic: ' + split_txtin[1])
+		print ('Unsubscribe >' + ip + ':' + port + ' from list with topic: ' + split_txtin[1])
 		print ('\tSubscribe list: ' + str(subscribe_lst))	
 	# Error 
 	else:
